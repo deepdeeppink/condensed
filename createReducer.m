@@ -35,7 +35,7 @@ function createReducer
 
 	Re = @(velocity) abs(velocity) * d / viscosity;
 												  % debug
-	lambda = @(velocity) .3164 / Re(velocity)^.25;
+	lambda = @(velocity) .3164 / Re(velocity)^.25 * 2e3;
 	head = @(pressure) pressure ./ gravity ./ density + height;
 	p2 = @(v) v * abs(v);
 

@@ -4,13 +4,14 @@ classdef Native < Bridge.Abstract
 
 		function this = Native()
 
-            this.setNativeFunction(@this.nativeFunction);
+            this.stateFunction = Function.Cached( ...
+            	@this.nativeFunction, C.tolerance.velocity, C.tolerance.pressure);
 		end
 
 		function bridge = uminus(this)
 
 			bridge = copyElement(this);
-			bridge.setNativeFunction(@(Q) -this.nativeFunction(-Q));
+			this.stateFunction = @(Q) -this.nativeFunction(-Q);
 		end
 	end
 

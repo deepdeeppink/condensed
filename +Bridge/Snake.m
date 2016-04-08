@@ -16,7 +16,7 @@ classdef Snake < Bridge.Native
 		function dP = nativeFunction(this, Q)
 			
 			subFunctions = cellfun(@(bridge) bridge.stateFunction, this.items, 'UniformOutput', false);
-			dP = sum(cellfun(@(f) f.eval(Q), subFunctions));
+			dP = sum(cellfun(@(f) f(Q), subFunctions));
 		end
 	end
 end

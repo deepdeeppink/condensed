@@ -42,7 +42,7 @@ function app
 	pressure = 4e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi * 2) * 2e5;
 
 	F = Line( ...
-		'diameter', .5, ...
+		'diameter', .8, ...
 		'coordinate', coordinate, ...
 		'pressure', pressure, ...
 		'velocity', velocity);
@@ -59,8 +59,8 @@ function app
 	velocity = zeros(size(coordinate));
 	pressure(pressure < 0) = 0;
 	pressure(pressure > 8e5) = 8e5;
-	pressure = 4e5 + zeros(size(coordinate));
-	pressure = 4.1e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi ) * .2e5;
+	% pressure = 4e5 + zeros(size(coordinate));
+	pressure = 4e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi ) * .2e5;
 
 	T = Line( ...
 		'diameter', 1, ...
@@ -77,6 +77,7 @@ function app
 	% S = Bridge.Snake(C1, P1);
 
 %% >>
+	subplot(1, 2, 1)
 	xlim([0 max(coordinate)])
 	% ylim([0 8e5])
 	hold on
@@ -94,6 +95,7 @@ function app
 	line([1 1] * min(T.coordinate), get(gca, 'ylim'));
 	hF = [];
 	hT = [];
+	dots = [];
 	black = [0 0 0];
 	white = [1 1 1];
 	gray = white * .6;
@@ -123,7 +125,7 @@ function app
 		% nextT.pressure(end) = reducers.A(T.pressure(end - 1), sum(T.velocity(end - 1:end)) / 2, 0, T.diameter);
 		% nextT.velocity(end) = 0;
 		% p
-		nextT.pressure(end) = 4.1e5;
+		nextT.pressure(end) = 4e5;
 		nextT.velocity(end) = fsolve( ...
 			@(v) ...
 				reducers.A(T.pressure(end - 1), sum(T.velocity(end - 1:end)) / 2, v * C.scale.velocity, T.diameter) - nextT.pressure(end), ...
@@ -155,6 +157,7 @@ function app
 
 		if mod(i, 10) == 0
 
+			subplot(1, 2, 1)
 			if exist('hR')
 				delete(hR)
 			end
@@ -173,6 +176,19 @@ function app
 				delete(hT(1));
 				hF = hF(end - 49:end);
 				hT = hT(end - 49:end);
+			end
+
+			subplot(1, 2, 2)
+			% dP(Q)
+			hold on
+			for j = 1:length(dots)
+
+				set(dots(j), 'Color', color(length(dots) - j), 'LineWidth', .1)
+			end
+			dots(end + 1) = plot(F.velocity(end), T.pressure(1) - F.pressure(end), '.', 'Color', black)
+			if length(dots) > 50
+
+				dots = dots(end - 49:end);
 			end
 			pause(1e-10);
 		end
@@ -201,7 +217,7 @@ function f = jointReducer(x)
 	f = [
 		p1 - x(1) * C.scale.pressure,
 		p2 - x(2) * C.scale.pressure,
-		p2 - p1 - H.stateFunction.eval(f1),
+		p2 - p1 - P2.stateFunction(f1),
 		f1 - f2
 	];
 end

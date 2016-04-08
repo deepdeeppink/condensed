@@ -4,11 +4,7 @@ classdef Native < Bridge.Abstract
 
 		function this = Native()
 
-            try
-                this.setNativeFunction(@this.nativeFunction);
-            catch err
-                1
-            end
+            this.setNativeFunction(@this.nativeFunction);
 		end
 
 		function bridge = uminus(this)

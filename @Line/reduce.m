@@ -1,0 +1,16 @@
+function nextLine = reduce(this)
+	
+	p = this.pressure;
+	v = this.velocity;
+	d = this.diameter;
+
+	[p v] = reducers.AB( ...
+		p(1:end - 2), ...
+		p(3:end), ...
+		(v(1:end - 2) + v(2:end - 1)) / 2, ...
+		(v(2:end - 1) + v(3:end)) / 2, ...
+		d);
+
+	nextLine = Line(this);
+	nextLine.pressure = [NaN p NaN];
+	nextLine.velocity = [NaN v NaN];

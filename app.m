@@ -10,16 +10,8 @@ function app
  	clf, clc, clear
  	createReducer
 
-    % solverOptions = optimoptions('fsolve', ...
-    % 	'Algorithm', 'levenberg-marquardt', ...
-    % 	'MaxIter', Inf, ...
-    % 	'TolX', 1e-15, ...
-    % 	'TolFun', 1e-15 ...
-    % 	... % 'Display', 'off' ...
-    % );
-    solverOptions = optimoptions('fsolve', ...
-    	'Display', 'off' ...
-    );
+ 	LEFT_V_FIXED = true;
+ 	RIGHT_V_FIXED = true;
 
 % initial pressure
  	level = [10 12];
@@ -42,7 +34,7 @@ function app
 	pressure = 4e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi * 2) * 2e5;
 
 	F = Line( ...
-		'diameter', .8, ...
+		'diameter', 1, ...
 		'coordinate', coordinate, ...
 		'pressure', pressure, ...
 		'velocity', velocity);
@@ -60,7 +52,7 @@ function app
 	pressure(pressure < 0) = 0;
 	pressure(pressure > 8e5) = 8e5;
 	% pressure = 4e5 + zeros(size(coordinate));
-	pressure = 4e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi ) * .2e5;
+	pressure = 4e5 + sin((coordinate - min(coordinate)) / (max(coordinate) - min(coordinate)) * pi ) * 2e5;
 
 	T = Line( ...
 		'diameter', 1, ...
@@ -68,13 +60,13 @@ function app
 		'pressure', pressure, ...
 		'velocity', velocity);
 
-	C1 = Bridge.CheckValve;
-	C2 = -C1;
-	P1 = Bridge.Pump(2e3);
-	P2 = -P1;
-	S = Bridge.Snake(C1, P1);
-	H = Bridge.Humburger(C1, C1);
-	% S = Bridge.Snake(C1, P1);
+	c = Bridge.CheckValve;
+	P = Bridge.Pump(2e3);
+	% S = Bridge.Snake(-C, P);
+	% H = Bridge.Humburger(C, C);
+	Z = Bridge.Zero();
+	W = Bridge.Wall();
+	J = c;
 
 %% >>
 	subplot(1, 2, 1)
@@ -99,7 +91,9 @@ function app
 	black = [0 0 0];
 	white = [1 1 1];
 	gray = white * .6;
+	gray1 = [1 .2 .2];
 	color = @(x) (gray - white) .* exp(-x / 15) + white;
+	color1 = @(x) (gray - gray1) .* exp(-x / 15) + gray1;
 
 	for i = 1:Inf
 
@@ -107,55 +101,73 @@ function app
 		nextF = F.reduce;
 		nextT = T.reduce;
 
-		% 1-й стык
-		% v fixed
-		% nextF.pressure(1) = reducers.B(F.pressure(2), sum(F.velocity(1:2)) / 2, 0, F.diameter);
-		% nextF.velocity(1) = 0;
-		% p fixed
-		nextF.pressure(1) = 4e5;
-		nextF.velocity(1) = fsolve( ...
-			@(v) ...
-				reducers.B(F.pressure(2), sum(F.velocity(1:2)) / 2, v * C.scale.velocity, F.diameter) - nextF.pressure(1), ...
-			F.velocity(1) / C.scale.velocity, ...
-			solverOptions ...
-		) * C.scale.velocity;
+		% первый стык
+		if LEFT_V_FIXED
+
+			nextF.pressure(1) = reducers.B( ...
+				F.pressure(2), ...
+				F.velocity(1), ...
+				F.velocity(2), ...
+				0, ...
+				F.diameter ...
+			);
+			nextF.velocity(1) = 0;
+		else
+
+			nextF.pressure(1) = 4e5;
+			nextF.velocity(1) = fsolve( ...
+				@(v) ...
+					reducers.B( ...
+						F.pressure(2), ...
+						F.velocity(1), ...
+						F.velocity(2), ...
+						v * C.scale.velocity, ...
+						F.diameter ...
+					) - nextF.pressure(1), ...
+				F.velocity(1) / C.scale.velocity, ...
+				solverOptions ...
+			) * C.scale.velocity;
+		end
 
 		% последний стык
-		% v
-		% nextT.pressure(end) = reducers.A(T.pressure(end - 1), sum(T.velocity(end - 1:end)) / 2, 0, T.diameter);
-		% nextT.velocity(end) = 0;
-		% p
-		nextT.pressure(end) = 4e5;
-		nextT.velocity(end) = fsolve( ...
-			@(v) ...
-				reducers.A(T.pressure(end - 1), sum(T.velocity(end - 1:end)) / 2, v * C.scale.velocity, T.diameter) - nextT.pressure(end), ...
-			T.velocity(end) / C.scale.velocity, ...
-			solverOptions ...
-		) * C.scale.velocity;
+		if RIGHT_V_FIXED
 
+			nextT.pressure(end) = reducers.A( ...
+				T.pressure(end - 1), ...
+				T.velocity(end - 1), ...
+				T.velocity(end), ...
+				0, ...
+				T.diameter ...
+			);
+			nextT.velocity(end) = 0;
+		else
+			
+			nextT.pressure(end) = 4e5;
+			nextT.velocity(end) = fsolve( ...
+				@(v) ...
+					reducers.A( ...
+						T.pressure(end - 1), ...
+						T.velocity(end - 1), ...
+						T.velocity(end), ...
+						v * C.scale.velocity, ...
+						T.diameter ...
+					) - nextT.pressure(end), ...
+				T.velocity(end) / C.scale.velocity, ...
+				solverOptions ...
+			) * C.scale.velocity;
+		end
 
 		% главный стык
-		result = fsolve(@jointReducer, [
-			F.pressure(end) / C.scale.pressure
-			T.pressure(1) / C.scale.pressure
-			F.velocity(end) / C.scale.velocity
-			T.velocity(1) / C.scale.velocity
-		], solverOptions);
-		% TODO: figure out wtf?
-		% result = fsolve(@jointReducer, [0 0 0 0], solverOptions);
-
-		% debug
-		% result(3:4) .* [C.scale.velocity C.scale.velocity]
-		% result(1:2) .* [C.scale.pressure C.scale.pressure]
-		nextF.pressure(end) = result(1) * C.scale.pressure;
-		nextT.pressure(1) = result(2) * C.scale.pressure;
-		nextF.velocity(end) = result(3) * C.scale.velocity;
-		nextT.velocity(1) = result(4) * C.scale.velocity;
+		J.calculate(@(x) F.rightReducer(x) ^2 + T.leftReducer(x) ^2);
+		nextF.pressure(end) = J.pressureLeft;
+		nextT.pressure(1) = J.pressureRight;
+		nextF.velocity(end) = J.flow / nextF.section;
+		nextT.velocity(1) = J.flow / nextT.section;
 			
 		F = nextF;
 		T = nextT;
 
-		if mod(i, 10) == 0
+		% if mod(i, 2) == 0
 
 			subplot(1, 2, 1)
 			if exist('hR')
@@ -178,14 +190,16 @@ function app
 				hT = hT(end - 49:end);
 			end
 
+		if i > 1
+
 			subplot(1, 2, 2)
 			% dP(Q)
 			hold on
 			for j = 1:length(dots)
 
-				set(dots(j), 'Color', color(length(dots) - j), 'LineWidth', .1)
+				set(dots(j), 'Color', color1(length(dots) - j), 'LineWidth', .1)
 			end
-			dots(end + 1) = plot(F.velocity(end), T.pressure(1) - F.pressure(end), '.', 'Color', black)
+			dots(end + 1) = plot(F.velocity(end), T.pressure(1) - F.pressure(end), '.', 'Color', black);
 			if length(dots) > 50
 
 				dots = dots(end - 49:end);
@@ -193,33 +207,4 @@ function app
 			pause(1e-10);
 		end
 	end
-
-function f = jointReducer(x)
-
-	% x = [p1 p2 v1 v2]
-	pl = F.pressure(end - 1);
-	vl = sum(F.velocity(end - 1:end)) / 2;
-	pr = T.pressure(2);
-	vr = sum(T.velocity(1:2)) / 2;
-
-	dl = F.diameter;
-	dr = T.diameter;
-	sl = pi * dl^2 / 4;
-	sr = pi * dr^2 / 4;
-
-	v1 = x(3) * C.scale.velocity;
-	v2 = x(4) * C.scale.velocity;
-	p1 = reducers.A(pl, vl, v1, dl);
-	p2 = reducers.B(pr, vr, v2, dr);
-	f1 = v1 * sl;
-	f2 = v2 * sr;
-
-	f = [
-		p1 - x(1) * C.scale.pressure,
-		p2 - x(2) * C.scale.pressure,
-		p2 - p1 - P2.stateFunction(f1),
-		f1 - f2
-	];
-end
-
 end

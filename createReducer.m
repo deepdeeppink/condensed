@@ -40,8 +40,8 @@ function createReducer
 	p2 = @(v) v * abs(v);
 
 %% уравнения
-	A = p_n + rc * v_n == p_l + rc * v_l - ( lambda(v_l) * p2(v_l) / 2 / d + gs ) * rc * dt;
-	B = p_n - rc * v_n == p_r - rc * v_r + ( lambda(v_r) * p2(v_r) / 2 / d + gs ) * rc * dt;
+	A = p_n + rc * v_n == p_l + rc * v_l - ( lambda((v_l + 0) / 2) * p2(v_l) / 2 / d + gs ) * rc * dt;
+	B = p_n - rc * v_n == p_r - rc * v_r + ( lambda((0 + v_r) / 2) * p2(v_r) / 2 / d + gs ) * rc * dt;
 
 %% экспорт
 	unknowns = [p_n v_n];
@@ -52,7 +52,7 @@ function createReducer
 	matlabFunction(simplify(ans.p_n), simplify(ans.v_n), 'Vars', {p_l p_r v_l v_r d}, 'Outputs', outputs, 'File', '+reducers/AB');
 
 	% A
-	matlabFunction(simplify(solve(A, p_n)), 'Vars', {p_l v_l v_n d}, 'Outputs', {'p'}, 'File', '+reducers/A');
+	matlabFunction(simplify(solve(A, p_n)), 'Vars', {p_l v_l v_0 v_n d}, 'Outputs', {'p'}, 'File', '+reducers/A');
 	
 	% B
-	matlabFunction(simplify(solve(B, p_n)), 'Vars', {p_r v_r v_n d}, 'Outputs', {'p'}, 'File', '+reducers/B');
+	matlabFunction(simplify(solve(B, p_n)), 'Vars', {p_r v_0 v_r v_n d}, 'Outputs', {'p'}, 'File', '+reducers/B');

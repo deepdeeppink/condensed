@@ -12,6 +12,7 @@ classdef Native < Bridge.Abstract
 
 			bridge = copyElement(this);
 			this.stateFunction = @(Q) -this.nativeFunction(-Q);
+			this.flowLimits = this.flowLimits(end:-1:1);
 		end
 	end
 

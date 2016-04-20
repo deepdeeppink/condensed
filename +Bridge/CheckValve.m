@@ -1,23 +1,11 @@
-classdef CheckValve < Bridge.Native
+classdef CheckValve < Bridge.Zero
 
 	methods
 
 		function this = CheckValve()
 
-			this = this@Bridge.Native();
-		end
-
-		function dP = nativeFunction(this, Q)
-
-			if Q >= 0
-				
-				dP = 0;
-			else
-
-				P0 = 1e+5 * C.airPressure;
-				Q0 = 3.6 / 60;
-				dP = P0 * (exp(-Q / Q0) - 1);
-			end
+			this = this@Bridge.Zero();
+			this.flowLimits = [0 Inf];
 		end
 	end
 end

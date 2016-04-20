@@ -8,9 +8,10 @@ classdef Line < handle
 		diameter
 	end
 
-	properties (Dependent)
+	properties (Dependent, SetAccess=private)
 
 		index
+		section
 	end
 
 	methods
@@ -53,6 +54,39 @@ classdef Line < handle
 		function index = get.index(this)
 
 			index = 1:length(this.coordinate);
+		end
+
+		function section = get.section(this)
+
+			section = pi * this.diameter^2 / 4;
+		end
+
+		function f = leftReducer(this, x)
+			
+			% x = [pin pout q]
+			scale = C.scale;
+			v = x(3) * scale.flow / this.section;
+			p = reducers.B( ...
+				this.pressure(2), ...
+				this.velocity(1), ...
+				this.velocity(2), ...
+				v, ...
+				this.diameter);
+			f = p - x(2) * scale.pressure;
+		end
+
+		function f = rightReducer(this, x)
+			
+			% x = [pin pout q]
+			scale = C.scale;
+			v = x(3) * scale.flow / this.section;
+			p = reducers.A( ...
+				this.pressure(end - 1), ...
+				this.velocity(end - 1), ...
+				this.velocity(end), ...
+				v, ...
+				this.diameter);
+			f = p - x(1) * scale.pressure;
 		end
 	end
 end

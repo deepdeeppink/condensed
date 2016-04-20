@@ -5,7 +5,8 @@ classdef Cached < Function.Functor
 		sourceFunction
 	end
 
-	properties (Hidden)
+	properties
+	% properties (Hidden)
 
 		arguments
 		results

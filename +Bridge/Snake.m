@@ -11,6 +11,17 @@ classdef Snake < Bridge.Native
 
 			this = this@Bridge.Native();
 			this.items = varargin;
+			this.flowLimits = [
+				max(cellfun(@(i) i.flowLimits(1), this.items))
+				min(cellfun(@(i) i.flowLimits(2), this.items))
+			];
+		end
+
+		% TODO: remove override
+		function instance = clone(this)
+
+			cx = eval(['@' class(this)]);
+			instance = cx(this.items{:});
 		end
 
 		function dP = nativeFunction(this, Q)

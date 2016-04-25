@@ -11,6 +11,14 @@ classdef Pump < Bridge.Native
 
 			this = this@Bridge.Native();
 			this.rate = rate;
+			this.flowLimits = [0 Inf];
+		end
+
+		% TODO: remove override
+		function instance = clone(this)
+
+			cx = eval(['@' class(this)]);
+			instance = cx(this.rate);
 		end
 
 		function dP = nativeFunction(this, Q)
@@ -21,12 +29,12 @@ classdef Pump < Bridge.Native
 			a_1 = -2.522;
 			a_2 = -520.369;
 			a_3 = -37.509;
-			dP_0 = 1e+5 * C.airPressure;
+			dP_0 = C.airPressure;
 			Q_0 = 3.6 / 60;
 			if N < 1e-2
 
 				dP = 0;
-			elseif Q < 1
+			elseif Q < 0
 
 				dP = Ro * a_0 * N^2 + dP_0 * (exp(- Q / Q_0) - 1);
 			else

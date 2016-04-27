@@ -3,7 +3,7 @@ classdef Common < Function.Abstract
 	properties
 
 		nativeFunction
-    end
+	end
 
 	methods
 

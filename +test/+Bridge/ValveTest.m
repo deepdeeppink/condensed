@@ -3,14 +3,14 @@ classdef ValveTest < matlab.unittest.TestCase
 	properties
 
 		bridge
-    end
+	end
 
-    methods (TestMethodSetup)
+	methods (TestMethodSetup)
 
-    	function createBridge(testCase)
+		function createBridge(testCase)
 
 			testCase.bridge = Bridge.Valve([]);
-    	end
+		end
 	end
 
 	methods (Test)

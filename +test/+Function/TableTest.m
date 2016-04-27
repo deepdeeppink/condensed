@@ -6,17 +6,17 @@ classdef TableTest < matlab.unittest.TestCase
 		arguments
 		nativeFunction
 		testFunction
-    end
+	end
 
-    methods (TestMethodSetup)
+	methods (TestMethodSetup)
 
-    	function createFunction(testCase)
+		function createFunction(testCase)
 
-    		testCase.nativeFunction = @(x) x * x;
-    		testCase.arguments = -10:testCase.argumentStep:10;
-    		values = arrayfun(@(a) testCase.nativeFunction(a), testCase.arguments);
-    		testCase.testFunction = Function.Table(testCase.arguments, values);
-    	end
+			testCase.nativeFunction = @(x) x * x;
+			testCase.arguments = -10:testCase.argumentStep:10;
+			values = arrayfun(@(a) testCase.nativeFunction(a), testCase.arguments);
+			testCase.testFunction = Function.Table(testCase.arguments, values);
+		end
 	end
 
 	methods (Test)

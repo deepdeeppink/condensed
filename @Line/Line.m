@@ -16,36 +16,36 @@ classdef Line < handle
 
 	methods
 
-        function this = Line(varargin)
+		function this = Line(varargin)
 
-        	if nargin == 1 && isa(varargin{1}, 'Line')
+			if nargin == 1 && isa(varargin{1}, 'Line')
 
-        		source = varargin{1};
-        		this.coordinate = source.coordinate;
-        		this.pressure = source.pressure;
-        		this.velocity = source.velocity;
-        		this.diameter = source.diameter;
-        	else
-	        	
-	        	A = struct(varargin{:});
+				source = varargin{1};
+				this.coordinate = source.coordinate;
+				this.pressure = source.pressure;
+				this.velocity = source.velocity;
+				this.diameter = source.diameter;
+			else
+				
+				A = struct(varargin{:});
 
-	        	if isfield(A, 'coordinateMax')
+				if isfield(A, 'coordinateMax')
 
 					this.coordinate = 0:C.coordinateStep:A.coordinateMax;
 				elseif isfield(A, 'coordinate')
-	        		
+					
 					this.coordinate = A.coordinate;
 				end
-	        	if isfield(A, 'pressure')
-	        		
+				if isfield(A, 'pressure')
+					
 					this.pressure = A.pressure;
 				end
-	        	if isfield(A, 'velocity')
-	        		
+				if isfield(A, 'velocity')
+					
 					this.velocity = A.velocity;
 				end
-	        	if isfield(A, 'diameter')
-	        		
+				if isfield(A, 'diameter')
+					
 					this.diameter = A.diameter;
 				end
 			end

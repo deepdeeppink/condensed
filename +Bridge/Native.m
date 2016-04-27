@@ -9,8 +9,8 @@ classdef Native < Bridge.Abstract
 
 		function this = Native()
 
-            this.stateFunction = Function.Cached( ...
-            	@this.directionWrapper, C.tolerance.flow, C.tolerance.pressure);
+			this.stateFunction = Function.Cached( ...
+				@this.directionWrapper, C.tolerance.flow, C.tolerance.pressure);
 		end
 
 		function bridge = uminus(this)

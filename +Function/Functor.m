@@ -9,8 +9,8 @@ classdef Functor < handle
 
 		function y = subsref(this, ref)
 
-            x = ref.subs{1};
-            y = this.eval(x);
-        end
+			x = ref.subs{1};
+			y = this.eval(x);
+		end
 	end
 end

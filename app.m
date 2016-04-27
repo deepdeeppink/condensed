@@ -7,18 +7,18 @@
 %            (__)\       )\/\
 %                ||----w |
 %                ||     ||
- 	clf, clc, clear
- 	createReducer
+	clf, clc, clear
+	createReducer
 
- 	LEFT_V_FIXED = false;
- 	RIGHT_V_FIXED = true;
+	LEFT_V_FIXED = false;
+	RIGHT_V_FIXED = true;
 
 % initial pressure
- 	level = [10 12];
+	level = [10 12];
 
- 	% случайные распределения
- 	coordinateMax = 500;
- 	coordinate = 0:C.coordinateStep:coordinateMax;
+	% случайные распределения
+	coordinateMax = 500;
+	coordinate = 0:C.coordinateStep:coordinateMax;
 	peakNum = 5;
 	peakCoordinate = coordinate([1 ceil(sort(rand([1 peakNum - 2])) * end) end]);
 	[~, uniqueIndex] = unique(peakCoordinate);
@@ -103,10 +103,10 @@
 	hold on
 
 	text = annotation(gcf, 'textbox',...
-    	[0.146601617795753 0.767772511848341 0.100112234580384 0.123222748815166],...
-    	'String', {'0 s'}, ...
-    	'FitBoxToText', 'on', ...
-    	'EdgeColor', 'none');
+		[0.146601617795753 0.767772511848341 0.100112234580384 0.123222748815166],...
+		'String', {'0 s'}, ...
+		'FitBoxToText', 'on', ...
+		'EdgeColor', 'none');
 
 	plot(F, 'Color', [0 0.4470 0.7410]);
 	plot(T, 'Color', [0 0.4470 0.7410]);

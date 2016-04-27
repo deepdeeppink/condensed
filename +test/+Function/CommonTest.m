@@ -3,14 +3,14 @@ classdef CommonTest < matlab.unittest.TestCase
 	properties
 
 		testFunction
-    end
+	end
 
-    methods (TestMethodSetup)
+	methods (TestMethodSetup)
 
-    	function createFunction(testCase)
+		function createFunction(testCase)
 
-    		testCase.testFunction = Function.Common(@(x) x * x, []);
-    	end
+			testCase.testFunction = Function.Common(@(x) x * x, []);
+		end
 	end
 
 	methods (Test)
